@@ -197,14 +197,16 @@ class CNN(nn.Module):
             # x = AF.relu(pool(conv(x)))
             x = _ACTIVATION_FUNCTIONS[iterCNNTestingModel.activationFunction](pool(conv(x)))
             x = dropout(x)
-        x = x.view(-1, self.num_flatten_nodes) # flattening
         for fc, dropout in zip(self.fc, self.dropout_fc):
+            x = x.view(-1, self.num_flatten_nodes) # flattening
             x = _ACTIVATION_FUNCTIONS[iterCNNTestingModel.activationFunction](fc(x))
             x = dropout(x)
         if iterCNNTestingModel.loss_Function != "crossEntropy":
+            print(f"Ping")
             max_x = AF.log_softmax(x)
             output = self.out(max_x)
         else:
+            print(f"Pong")
             output = self.out(x)
         return output
 
@@ -238,8 +240,8 @@ def train_ANN_model(num_epochs, training_data, device, CUDA_enabled, is_MLP, ANN
 
             optimizer.zero_grad() # set the cumulated gradient to zero
             output = ANN_model(images) # feedforward images as input to the network
-            print(f"the thing: {output.shape}")
-            loss = loss_func(output, labels) # computing loss
+            print(f"the thing: {output[0].shape}")
+            loss = loss_func(output0, labels) # computing loss
             #print("Loss: ", loss)
             #print("Loss item: ", loss.item())
             train_losses.append(loss.item())
