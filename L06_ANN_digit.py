@@ -4,6 +4,60 @@ import torch, torch.nn as nn, torch.optim as optim
 import torch.nn.functional as AF
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
+from time import time
+import csv
+
+### Custom class for results and model parameters
+
+#This isnt all of the activation functions, but they are at least the ones i remember from class
+_ACTIVATION_FUNCTIONS = {
+    "relu":AF.relu,
+    "silu":AF.silu,
+    "sigmoid":AF.sigmoid,
+}
+
+class _model_results:
+    def updateResults(self, training_time, accuracy):
+        self.training_time= training_time
+        self.accuracy= accuracy
+
+class MLP_model_results(_model_results):
+    def __init__(self, epochs:int, number_of_layers:int, number_of_hidden_neurons:int, mini_batch_size:int, activationFunction:str, loss_Function:str, gradient_method:str, alpha_learning_rate:float, gamma_momentum:float, dropout:float, training_methods:list[str]) -> None:
+        self.epochs = epochs
+        self.number_of_layers = number_of_layers
+        self.number_of_hidden_neurons = number_of_hidden_neurons
+        self.mini_batch_size = mini_batch_size
+        self.activationFunction = activationFunction
+        self.loss_Function = loss_Function
+        self.grad_method = gradient_method
+        self.alpha_learning_rate = alpha_learning_rate
+        self.gamma_momentum = gamma_momentum
+        self.dropout = dropout
+        self.training_methods = training_methods
+        self.training_time = 0.0
+        self.accuracy = 0.0
+
+    def __str__(self):
+        return f'''MLP Model Results:
+Number of Hidden Layers: {self.number_of_layers}
+Number of Neurons: {self.number_of_hidden_neurons}
+Mini Batch Size: {self.mini_batch_size}
+Activation Function: {self.activationFunction}
+Loss Function: {self.loss_Function}
+Gradient Method: {self.grad_method}
+Learning Rate (Alpha): {self.alpha_learning_rate}
+Momentum (Gamma): {self.gamma_momentum}
+Dropout: {self.dropout}
+Training Methods: {", ".join(self.training_methods)}
+Training Time: {self.training_time}
+Accuracy: {self.accuracy}'''
+    
+    def to_csv(self):
+        return[self.epochs,self.number_of_layers,self.number_of_hidden_neurons,self.mini_batch_size,
+               self.activationFunction,self.loss_Function,self.grad_method,self.alpha_learning_rate,self.gamma_momentum,
+               self.dropout,self.training_time,self.accuracy]
+
+
 
 ###################### Designing an ANN architectures #########################
 
@@ -24,7 +78,8 @@ class MLP(nn.Module): # All models should inherit from nn.Module
     def forward(self, x):
         # In this implementation, the activation function is reLU, but you can try other functions
         # torch.nn.functional modeule consists of all the activation functions and output functions
-        h1_out = AF.relu(self.hidden1(x))
+        h1_out = _ACTIVATION_FUNCTIONS[iterMLPTestingModel.activationFunction](self.hidden1(x))
+        # h1_out = AF.relu(self.hidden1(x))
         output = self.output(h1_out)
         # AF.softmax() is NOT needed when CrossEntropyLoss() is used as it already combines both LogSoftMax() and NLLLoss()
         
@@ -68,10 +123,10 @@ def show_some_digit_images(images):
     print("> Shapes of image:", images.shape)
     #print("Matrix for one image:")
     #print(images[1][0])
-    for i in range(0, 10):
-        plt.subplot(2, 5, i+1) # Display each image at i+1 location in 2 rows and 5 columns (total 2*5=10 images)
-        plt.imshow(images[i][0], cmap='Oranges') # show ith image from image matrices by color map='Oranges'
-    plt.show()
+    # for i in range(0, 10):
+    #     plt.subplot(2, 5, i+1) # Display each image at i+1 location in 2 rows and 5 columns (total 2*5=10 images)
+    #     plt.imshow(images[i][0], cmap='Oranges') # show ith image from image matrices by color map='Oranges'
+    # plt.show()
 
 # Training function
 def train_ANN_model(num_epochs, training_data, device, CUDA_enabled, is_MLP, ANN_model, loss_func, optimizer):
@@ -131,7 +186,8 @@ def test_ANN_model(device, CUDA_enabled, is_MLP, ANN_model, testing_data):
             if (batch_cnt+1) % mini_batch_size == 0:
                 print(f"batch={batch_cnt+1}/{num_test_batches}")
         print("> Number of samples=", num_samples, "number of correct prediction=", num_correct, "accuracy=", accuracy)
-    return predicted_digits
+        
+    return predicted_digits,accuracy
 
 ########################### Checking GPU and setup #########################
 ### CUDA is a parallel computing platform and toolkit developed by NVIDIA. 
@@ -162,68 +218,205 @@ else:
 ### Normalize the tensor: transforms.Normalize() normalizes the tensor with mean (0.5) and stdev (0.5)
 #+ You can change the mean and stdev values
 print("------------------ANN modeling---------------------------")
-transforms = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,),(0.5,)),])
-# PyTorch tensors are like NumPy arrays that can run on GPU
-# e.g., x = torch.randn(64,100).type(dtype) # need to cast tensor to a CUDA datatype (dtype)
 
-from torch.autograd import Variable
-x = Variable
+#
+# Parameters for tweaking
+#
+testingModels = {"MLP":[],"CNN":[]}
+testingResults = {"MLP":[],"CNN":[]}
+testingModels["MLP"] = [MLP_model_results(
+    epochs = 1,
+    number_of_layers=1,
+    number_of_hidden_neurons=10,
+    mini_batch_size=100,
+    activationFunction="relu",
+    loss_Function="crossEntropy",
+    gradient_method="SGD",
+    alpha_learning_rate=0.01 ,
+    gamma_momentum=0.5,
+    dropout=0.05,
+    training_methods=[]
+),
+MLP_model_results(
+    epochs = 1,
+    number_of_layers=1,
+    number_of_hidden_neurons=20,
+    mini_batch_size=100,
+    activationFunction="relu",
+    loss_Function="crossEntropy",
+    gradient_method="SGD",
+    alpha_learning_rate=0.01 ,
+    gamma_momentum=0.5,
+    dropout=0.05,
+    training_methods=[]
+),
+MLP_model_results(
+    epochs = 1,
+    number_of_layers=1,
+    number_of_hidden_neurons=50,
+    mini_batch_size=100,
+    activationFunction="relu",
+    loss_Function="crossEntropy",
+    gradient_method="SGD",
+    alpha_learning_rate=0.01 ,
+    gamma_momentum=0.5,
+    dropout=0.05,
+    training_methods=[]
+),
+MLP_model_results(
+    epochs = 1,
+    number_of_layers=1,
+    number_of_hidden_neurons=100,
+    mini_batch_size=100,
+    activationFunction="relu",
+    loss_Function="crossEntropy",
+    gradient_method="SGD",
+    alpha_learning_rate=0.01 ,
+    gamma_momentum=0.5,
+    dropout=0.05,
+    training_methods=[]
+)
+]
 
-### Download and load the dataset from the torch vision library to the directory specified by root=''
-# MNIST is a collection of 7000 handwritten digits (in images) split into 60000 training images and 1000 for testing 
-# PyTorch library provides a clean data set. The following command will download training data in directory './data'
-train_dataset=datasets.MNIST(root='./data', train=True, transform=transforms, download=True)
-test_dataset=datasets.MNIST(root='./data', train=False, transform=transforms, download=False)
-print("> Shape of training data:", train_dataset.data.shape)
-print("> Shape of testing data:", test_dataset.data.shape)
-print("> Classes:", train_dataset.classes)
+# End Tweaking Parameters
 
-# You can use random_split function to splite a dataset
-#from torch.utils.data.dataset import random_split
-#train_data, val_data, test_data = random_split(train_dataset, [60,20,20])
+for iterMLPTestingModel in testingModels["MLP"]:
+    if not isinstance(iterMLPTestingModel,MLP_model_results):
+        continue
 
-### DataLoader will shuffle the training dataset and load the training and test dataset
-mini_batch_size = 100 #+ You can change this mini_batch_size
-# If mini_batch_size==100, # of training batches=6000/100=600 batches, each batch contains 100 samples (images, labels)
-# DataLoader will load the data set, shuffle it, and partition it into a set of samples specified by mini_batch_size.
-train_dataloader=DataLoader(dataset=train_dataset, batch_size=mini_batch_size, shuffle=True)
-test_dataloader=DataLoader(dataset=test_dataset, batch_size=mini_batch_size, shuffle=True)
-num_train_batches = len(train_dataloader)
-num_test_batches = len(test_dataloader)
-print("> Mini batch size: ", mini_batch_size)
-print("> Number of batches loaded for training: ", num_train_batches)
-print("> Number of batches loaded for testing: ", num_test_batches)
 
-### Let's display some images from the first batch to see what actual digit images look like
-iterable_batches = iter(train_dataloader) # making a dataset iterable
-images, labels = next(iterable_batches) # If you can call next() again, you get the next batch until no more batch left
-show_digit_image = True
-if show_digit_image:
-    show_some_digit_images(images)
+    transforms_result = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,),(0.5,)),])
+    # PyTorch tensors are like NumPy arrays that can run on GPU
+    # e.g., x = torch.randn(64,100).type(dtype) # need to cast tensor to a CUDA datatype (dtype)
 
-### Create an object for the ANN model defined in the MLP class
-# Architectural parameters: You can change these parameters except for num_input and num_classes
-num_input = 28*28   # 28X28=784 pixels of image
-num_classes = 10    # output layer
-num_hidden = 10     # number of neurons at the first hidden layer
-# Randomly selected neurons by dropout_pr probability will be dropped (zeroed out) for regularization.
-dropout_pr = 0.05
+    from torch.autograd import Variable
+    x = Variable
 
-# MLP model
-MLP_model=MLP(num_input, num_hidden, num_classes)
-# Some model properties: 
-# .state_dic(): a dictionary of trainable parameters with their current valeus
-# .parameter(): a list of all trainable parameters in the model
-# .train() or .eval(): setting training, testing mode
+    ### Download and load the dataset from the torch vision library to the directory specified by root=''
+    # MNIST is a collection of 7000 handwritten digits (in images) split into 60000 training images and 1000 for testing 
+    # PyTorch library provides a clean data set. The following command will download training data in directory './data'
+    train_dataset=datasets.MNIST(root='./data', train=True, transform=transforms_result, download=True)
+    test_dataset=datasets.MNIST(root='./data', train=False, transform=transforms_result, download=False)
+    print("> Shape of training data:", train_dataset.data.shape)
+    print("> Shape of testing data:", test_dataset.data.shape)
+    print("> Classes:", train_dataset.classes)
 
-print("> MLP model parameters")
-print(MLP_model.parameters)
-# state_dict() maps each layer to its parameter tensor.
-print ("> MLP model's state dictionary")
-for param_tensor in MLP_model.state_dict():
-    print(param_tensor, MLP_model.state_dict()[param_tensor].size())
+    # You can use random_split function to splite a dataset
+    #from torch.utils.data.dataset import random_split
+    #train_data, val_data, test_data = random_split(train_dataset, [60,20,20])
 
-#exit()
+    ### DataLoader will shuffle the training dataset and load the training and test dataset
+
+    mini_batch_size = iterMLPTestingModel.mini_batch_size #+ You can change this mini_batch_size
+
+    # If mini_batch_size==100, # of training batches=6000/100=600 batches, each batch contains 100 samples (images, labels)
+    # DataLoader will load the data set, shuffle it, and partition it into a set of samples specified by mini_batch_size.
+    train_dataloader=DataLoader(dataset=train_dataset, batch_size=mini_batch_size, shuffle=True)
+    test_dataloader=DataLoader(dataset=test_dataset, batch_size=mini_batch_size, shuffle=True)
+    num_train_batches = len(train_dataloader)
+    num_test_batches = len(test_dataloader)
+    print("> Mini batch size: ", mini_batch_size)
+    print("> Number of batches loaded for training: ", num_train_batches)
+    print("> Number of batches loaded for testing: ", num_test_batches)
+
+    ### Let's display some images from the first batch to see what actual digit images look like
+    iterable_batches = iter(train_dataloader) # making a dataset iterable
+    images, labels = next(iterable_batches) # If you can call next() again, you get the next batch until no more batch left
+    show_digit_image = True
+    if show_digit_image:
+        show_some_digit_images(images)
+
+    ### Create an object for the ANN model defined in the MLP class
+    # Architectural parameters: You can change these parameters except for num_input and num_classes
+    num_input = 28*28   # 28X28=784 pixels of image
+    num_classes = 10    # output layer
+    #There are 10 digits that we are trying to classify
+
+    num_hidden = iterMLPTestingModel.number_of_hidden_neurons
+    # num_hidden = 10     # number of neurons at the first hidden layer
+    # Randomly selected neurons by dropout_pr probability will be dropped (zeroed out) for regularization.
+
+    dropout_pr = iterMLPTestingModel.dropout
+    # dropout_pr = 0.05
+
+    # MLP model
+    MLP_model=MLP(num_input, num_hidden, num_classes)
+    # Some model properties: 
+    # .state_dic(): a dictionary of trainable parameters with their current valeus
+    # .parameter(): a list of all trainable parameters in the model
+    # .train() or .eval(): setting training, testing mode
+
+    print("> MLP model parameters")
+    print(MLP_model.parameters)
+    # state_dict() maps each layer to its parameter tensor.
+    print ("> MLP model's state dictionary")
+    for param_tensor in MLP_model.state_dict():
+        print(param_tensor, MLP_model.state_dict()[param_tensor].size())
+
+    #exit()
+
+    # To turn on/off CUDA if I don't want to use it.
+    CUDA_enabled = True
+    if (device.type == 'cuda' and CUDA_enabled):
+        print("...Modeling MLP using GPU...")
+        MLP_model = MLP_model.to(device=device) # sending to whaever device (for GPU acceleration)
+        # CNN_model = CNN_model.to(device=device)
+    else:
+        print("...Modeling MLP using CPU...")
+
+
+
+    ### Choose a gradient method
+    # model hyperparameters and gradient methods
+    # optim.SGD performs gradient descent and update the weigths through backpropagation.
+    num_epochs = iterMLPTestingModel.epochs
+    alpha = iterMLPTestingModel.alpha_learning_rate       # learning rate
+    gamma = iterMLPTestingModel.gamma_momentum        # momentum
+    # Stochastic Gradient Descent (SGD) is used in this program.
+    #+ You can choose other gradient methods (Adagrad, adadelta, Adam, etc.) and parameters
+    MLP_optimizer = optim.SGD(MLP_model.parameters(), lr=alpha, momentum=gamma) 
+    print("> MLP optimizer's state dictionary")
+    for var_name in MLP_optimizer.state_dict():
+        print(var_name, MLP_optimizer.state_dict()[var_name])
+
+    ### Define a loss function: You can choose other loss functions
+    loss_func = nn.CrossEntropyLoss()
+
+
+    ### Train your networks
+
+    print("............Training MLP................")
+    is_MLP = True
+    
+    start_time = time()
+    train_loss=train_ANN_model(num_epochs, train_dataloader, device, CUDA_enabled, is_MLP, MLP_model, loss_func, MLP_optimizer)
+    training_time = time() - start_time
+    print("............Testing MLP model................")
+
+    print("> Input digits:")
+    print(labels)
+    predicted_digits, accuracy=test_ANN_model(device, CUDA_enabled, is_MLP, MLP_model, test_dataloader)
+    print("> Predicted digits by MLP model")
+    print(predicted_digits)
+    iterMLPTestingModel.updateResults(training_time=training_time,accuracy=accuracy)
+    testingResults["MLP"].append(iterMLPTestingModel)
+
+
+print("All MLP tests completed:")
+
+with open("MLP_testing_results.csv","w",newline="") as file:
+    writer = csv.writer(file)
+    writer.writerow(["epochs","number_of_layers","number_of_hidden_neurons","mini_batch_size",
+            "activationFunction","loss_Function","grad_method","alpha_learning_rate","gamma_momentum",
+            "dropout","training_time","accuracy"])
+
+    for iterMLPresult in testingResults["MLP"]:
+        print(iterMLPresult)
+
+        writer.writerow(iterMLPresult.to_csv())
+
+
+exit()
 
 # CNN model
 CNN_model = CNN(dropout_pr, num_hidden, num_classes)
@@ -233,41 +426,15 @@ print(CNN_model.parameters)
 # To turn on/off CUDA if I don't want to use it.
 CUDA_enabled = True
 if (device.type == 'cuda' and CUDA_enabled):
-    print("...Modeling using GPU...")
-    MLP_model = MLP_model.to(device=device) # sending to whaever device (for GPU acceleration)
+    print("...Modeling CNN using GPU...")
+    # MLP_model = MLP_model.to(device=device) # sending to whaever device (for GPU acceleration)
     CNN_model = CNN_model.to(device=device)
 else:
-    print("...Modeling using CPU...")
-
-### Define a loss function: You can choose other loss functions
-loss_func = nn.CrossEntropyLoss()
-
-### Choose a gradient method
-# model hyperparameters and gradient methods
-# optim.SGD performs gradient descent and update the weigths through backpropagation.
-num_epochs = 1
-alpha = 0.01       # learning rate
-gamma = 0.5        # momentum
-# Stochastic Gradient Descent (SGD) is used in this program.
-#+ You can choose other gradient methods (Adagrad, adadelta, Adam, etc.) and parameters
-MLP_optimizer = optim.SGD(MLP_model.parameters(), lr=alpha, momentum=gamma) 
-print("> MLP optimizer's state dictionary")
-for var_name in MLP_optimizer.state_dict():
-    print(var_name, MLP_optimizer.state_dict()[var_name])
+    print("...Modeling CNN using CPU...")
 
 # CNN optimizer
 CNN_optimizer = optim.SGD(CNN_model.parameters(), lr=alpha, momentum=gamma) 
 
-### Train your networks
-print("............Training MLP................")
-is_MLP = True
-train_loss=train_ANN_model(num_epochs, train_dataloader, device, CUDA_enabled, is_MLP, MLP_model, loss_func, MLP_optimizer)
-print("............Testing MLP model................")
-print("> Input digits:")
-print(labels)
-predicted_digits=test_ANN_model(device, CUDA_enabled, is_MLP, MLP_model, test_dataloader)
-print("> Predicted digits by MLP model")
-print(predicted_digits)
 
 print("............Training CNN................")
 is_MLP = False
