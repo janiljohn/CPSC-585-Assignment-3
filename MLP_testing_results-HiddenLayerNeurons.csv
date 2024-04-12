@@ -1,0 +1,5 @@
+epochs,number_of_layers,number_of_hidden_neurons,mini_batch_size,activationFunction,loss_Function,grad_method,alpha_learning_rate,gamma_momentum,dropout,training_time,accuracy
+1,1,10,100,relu,crossEntropy,SGD,0.01,0.5,0.05,5.604000568389893,0.9
+1,1,20,100,relu,crossEntropy,SGD,0.01,0.5,0.05,4.501999378204346,0.9
+1,1,50,100,relu,crossEntropy,SGD,0.01,0.5,0.05,4.703999042510986,0.87
+1,1,100,100,relu,crossEntropy,SGD,0.01,0.5,0.05,4.688999176025391,0.94
