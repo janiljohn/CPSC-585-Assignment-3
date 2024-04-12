@@ -224,6 +224,10 @@ print("------------------ANN modeling---------------------------")
 #
 testingModels = {"MLP":[],"CNN":[]}
 testingResults = {"MLP":[],"CNN":[]}
+
+testingResultsFileDistiction = "HiddenLayerNeurons"
+testingResultsFileName = f"MLP_testing_results-{testingResultsFileDistiction}.csv"
+
 testingModels["MLP"] = [MLP_model_results(
     epochs = 1,
     number_of_layers=1,
@@ -404,7 +408,7 @@ for iterMLPTestingModel in testingModels["MLP"]:
 
 print("All MLP tests completed:")
 
-with open("MLP_testing_results.csv","w",newline="") as file:
+with open(testingResultsFileName,"w",newline="") as file:
     writer = csv.writer(file)
     writer.writerow(["epochs","number_of_layers","number_of_hidden_neurons","mini_batch_size",
             "activationFunction","loss_Function","grad_method","alpha_learning_rate","gamma_momentum",
