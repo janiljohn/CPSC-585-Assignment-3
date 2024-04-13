@@ -16,14 +16,19 @@ preprocess = transforms.Compose([
 
 
 
-contents = os.listdir('Tree Data')
+# contents = os.listdir('Tree Data')
 
-register_heif_opener()
+# register_heif_opener()
 
-for i, item in enumerate(contents):
-  print(i, item)
-  img = Image.open('Tree Data/'+item)
-  img.convert('RGB').save(f'{os.getcwd()}/Images/{i+1}.jpg')
+# for i, item in enumerate(contents):
+#   print(i, item)
+#   img = Image.open('Tree Data/'+item)
+#   img.convert('RGB').save(f'{os.getcwd()}/Images/{i+1}.jpg')
 
+contents = os.listdir('Images')
+
+for item in contents:
+  img = Image.open(item)
+  
 
 print('PyTorch version:', torch.__version__)
