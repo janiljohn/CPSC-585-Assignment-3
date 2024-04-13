@@ -44,7 +44,7 @@ class MLP(nn.Module): # All models should inherit from nn.Module
             x = dropout(x)
 
         if self.loss_Function != "crossEntropy":
-            max_x = AF.log_softmax(dim=x)
+            max_x = AF.log_softmax(x, dim=1)
             x = self.output(max_x)
         else:
             x = self.output(x)
@@ -133,7 +133,7 @@ class CNN(nn.Module):
             x = self.af(fc(x))
             x = dropout(x)
         if self.loss_Function != "crossEntropy":
-            max_x = AF.log_softmax(dim=x)
+            max_x = AF.log_softmax(x, dim=1)
             x = self.out(max_x)
         else:
             x = self.out(x)
