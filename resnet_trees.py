@@ -1,11 +1,29 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import torch, torch.nn as nn, torch.optim as optim
-import torch.nn.functional as AF
-from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+import torch
+import torchvision.models as models
+import torchvision.transforms as transforms
+import os
+from PIL import Image
+from pillow_heif import register_heif_opener
 
 model = torch.hub.load('pytorch/vision:v0.10.0', 'resnet18', pretrained=True)
+
+preprocess = transforms.Compose([
+    transforms.Resize(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
+
+
+
+contents = os.listdir('Tree Data')
+
+register_heif_opener()
+
+for i, item in enumerate(contents):
+  print(i, item)
+  img = Image.open('Tree Data/'+item)
+  img.convert('RGB').save(f'{os.getcwd()}/Images/{i+1}.jpg')
 
 
 print('PyTorch version:', torch.__version__)
