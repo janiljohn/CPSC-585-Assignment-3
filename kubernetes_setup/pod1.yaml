@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: csuf-cpsc585-ai-bestmodel-dep
+  labels:
+    k8s-app: csuf-cpsc585-ai-bestmodel-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: csuf-cpsc585-ai-bestmodel-dep
+  template:
+    metadata:
+      labels:
+        k8s-app: csuf-cpsc585-ai-bestmodel-dep
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.product
+                operator: In
+                values:
+                - NVIDIA-GeForce-GTX-1080-Ti
+      containers:
+      - name: mypod
+        image: gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/prp-pytorch2
+        securityContext:
+          runAsUser: 1000  # Non-root user ID
+          runAsGroup: 1000  # Non-root group ID
+        resources:
+          limits:
+            memory: 1750Mi
+            cpu: 4500m
+            # nvidia.com/gpu: "1"
+          requests:
+            memory: 1500Mi
+            cpu: 4000m
+            # nvidia.com/gpu: "1"
+        command: ["sh", "-c", "sleep infinity"]
+        
+        volumeMounts:
+        - name: csuf-cpsc585-ai-bestmodelstorage
+          mountPath: /mountedStorage
+        - name: workingdirectory
+          mountPath: /working
+      volumes:
+      - name: workingdirectory
+        emptyDir: {}
+      - name: csuf-cpsc585-ai-bestmodelstorage
+        persistentVolumeClaim:
+          claimName: csuf-cpsc585-ai-bestmodelstorage

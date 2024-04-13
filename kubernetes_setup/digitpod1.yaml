@@ -1,0 +1,59 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: myapp
+spec:
+  template:
+    metadata: 
+      labels:
+        app: myapp
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.product
+                operator: In
+                values:
+                - NVIDIA-GeForce-GTX-1080-Ti
+      containers:
+      - name: demo
+        image: gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/prp-pytorch2
+        command:
+        - "python"
+        args:
+        - "/opt/repo/cpsc-585-best-mlpcnnmodel/L06_ANN_digit.py"
+        volumeMounts:
+        - name: csuf-cpsc585-ai-bestmodelstorage
+          mountPath: /mountedStorage
+        - name: git-repo
+          mountPath: /opt/repo
+        resources:
+          limits:
+            memory: 1000Mi
+            cpu: 500m
+            nvidia.com/gpu: "1"
+          requests:
+            memory: 500Mi
+            cpu: 250m
+            nvidia.com/gpu: "1"
+      initContainers:
+      - name: init-clone-repo
+        image: alpine/git
+        args:
+          - clone
+          - --single-branch
+          - https://gitlab.nrp-nautilus.io/vudar/cpsc-585-best-mlpcnnmodel
+          - /opt/repo/cpsc-585-best-mlpcnnmodel
+        volumeMounts:
+          - name: git-repo
+            mountPath: /opt/repo
+      volumes:
+      - name: git-repo
+        emptyDir: {}
+      - name: csuf-cpsc585-ai-bestmodelstorage
+        persistentVolumeClaim:
+          claimName: csuf-cpsc585-ai-bestmodelstorage
+      restartPolicy: Never
+  backoffLimit: 5
