@@ -40,7 +40,7 @@ class MLP(nn.Module): # All models should inherit from nn.Module
         # In this implementation, the activation function is reLU, but you can try other functions
         # torch.nn.functional modeule consists of all the activation functions and output functions
         for hidden, dropout in zip(self.hiddens, self.dropouts):
-            x = self.af(hidden(x))
+            x = self.af(hidden(dim=x))
             x = dropout(x)
 
         if self.loss_Function != "crossEntropy":
@@ -133,7 +133,7 @@ class CNN(nn.Module):
             x = self.af(fc(x))
             x = dropout(x)
         if self.loss_Function != "crossEntropy":
-            max_x = AF.log_softmax(x)
+            max_x = AF.log_softmax(dim=x)
             x = self.out(max_x)
         else:
             x = self.out(x)
