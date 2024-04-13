@@ -178,7 +178,7 @@ test_parameters_mlp = {
                         "hidden_neurons":[10,25,50,100,200,300],
                         "mini_batch_size":[300,200,100,50,25,10,5],
                         "activationFunction":["relu","silu","sigmoid"],
-                        "loss_Function":["crossEntropy"],
+                        "loss_Function":["crossEntropy", "NLLLoss"],
                         "grad_method":["SGD","Adadelta","Adagrad"],
                         "alpha_learning_rate":[0.01,0.05,0.1,0.25,0.5,0.75,0.9],
                         "gamma_momentum":[0.01,0.05,0.1,0.25,0.5],
@@ -200,7 +200,7 @@ test_parameters_cnn = {
                         "hidden_neurons":[5,10,25,50,100,200,300],
                         "mini_batch_size":[300,200,100,50,25,10,5],
                         "activationFunction":["relu","silu","sigmoid"],
-                        "loss_Function":["crossEntropy"],
+                        "loss_Function":["crossEntropy", "NLLLoss"],
                         "grad_method":["SGD","Adadelta","Adagrad"],
                         "alpha_learning_rate":[0.01,0.05,0.1,0.25,0.5,0.75,0.9],
                         "gamma_momentum":[0.01,0.05,0.1,0.25,0.5],
@@ -284,6 +284,87 @@ testingModels["MLP"].append(MLP_model_results(
     dropout=0.01,
     training_methods=[]
 )
+)
+
+testingModels["MLP"].append(MLP_model_results(
+    epochs = 4,
+    number_of_layers=4,
+    number_of_hidden_neurons=10,
+    mini_batch_size=50,
+    activationFunction="sigmoid",
+    loss_Function="crossEntropy",
+    gradient_method="Adadelta",
+    alpha_learning_rate=0.25 ,
+    gamma_momentum=0.05,
+    dropout=0.01,
+    training_methods=[]
+)
+)
+
+testingModels["CNN"].append(CNN_model_results(
+    epochs=2,
+    conv_pool_layers=1,
+    fc_layers=2,
+    conv_kernel_size=3,
+    conv_stride=1,
+    conv_padding=1,
+    pool_kernel_size=4,
+    pool_stride=3,
+    hidden_neurons=25,
+    mini_batch_size=50,
+    activationFunction="silu",
+    loss_Function="crossEntropy",
+    grad_method="SGD",
+    alpha_learning_rate=0.25,
+    gamma_momentum=0.05,
+    rho=0.75,
+    dropout=0.005,
+    training_methods=[]
+    )
+)
+
+testingModels["CNN"].append(CNN_model_results(
+    epochs=2,
+    conv_pool_layers=1,
+    fc_layers=2,
+    conv_kernel_size=3,
+    conv_stride=1,
+    conv_padding=1,
+    pool_kernel_size=4,
+    pool_stride=1,
+    hidden_neurons=25,
+    mini_batch_size=50,
+    activationFunction="silu",
+    loss_Function="crossEntropy",
+    grad_method="SGD",
+    alpha_learning_rate=0.25,
+    gamma_momentum=0.05,
+    rho=0.75,
+    dropout=0.005,
+    training_methods=[]
+    )
+)
+
+testingModels["CNN"].append(CNN_model_results(
+    epochs=5,
+    conv_pool_layers=999,
+    fc_layers=3,
+    conv_kernel_size=3,
+    conv_stride=1,
+    conv_padding=1,
+    pool_kernel_size=4,
+    pool_stride=3,
+    hidden_neurons=25,
+    mini_batch_size=50,
+    activationFunction="silu",
+    loss_Function="crossEntropy",
+    grad_method="SGD",
+    alpha_learning_rate=0.25,
+    gamma_momentum=0.05,
+    rho=0.75,
+    dropout=0.005,
+    training_methods=[]
+    )
 )
 
 # End Tweaking Parameters
@@ -405,6 +486,8 @@ for iterMLPTestingModel in testingModels["MLP"]:
 
     if l_func == "crossEntropy":
         l_func = nn.CrossEntropyLoss()
+    elif l_func == "NLLLoss":
+        l_func = nn.NLLLoss()
 
     ### Train your networks
     if val_print_explicit > 0:
@@ -615,6 +698,8 @@ for iterCNNTestingModel in testingModels["CNN"]:
 
     if l_func == "crossEntropy":
         l_func = nn.CrossEntropyLoss()
+    elif l_func == "NLLLoss":
+        l_func = nn.NLLLoss()
 
     ### Train your networks
     if val_print_explicit > 0:
