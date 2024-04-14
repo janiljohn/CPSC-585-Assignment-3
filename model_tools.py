@@ -86,9 +86,9 @@ class CNN(nn.Module):
         self.loss_Function = loss_Function
         self.conv_pool_layers = conv_pool_layers
         self.W_conv = int(((28 - conv_kernel_size + (2 * (conv_padding))) / conv_stride) + 1)
-        print(f"W_conv: {self.W_conv}")
+        # print(f"W_conv: {self.W_conv}")
         self.W_pool = int(((self.W_conv - pool_kernel_size) / pooling_stride) + 1)
-        print(f"W_pool: {self.W_pool}")
+        # print(f"W_pool: {self.W_pool}")
         if self.W_pool <= 1 or self.W_conv <= 1:
             print("Error: Initial convolutional and pooling layers are too deep for the image size. Exiting...")
             self.fail = True

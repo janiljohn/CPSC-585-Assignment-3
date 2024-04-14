@@ -193,9 +193,9 @@ test_parameters_cnn = {
                         "conv_pool_layers": [1,2,3,4,5,7,9,15,30,50],
                         "fc_layers": [1,2,3,4,5,7,9,15,30,50],
                         "conv_kernel_size":[3,4,5,6,7],
-                        "conv_stride":[1,2,3,4,5],
+                        "conv_stride":[1,2,3,4],
                         "conv_padding":[0,1,2],
-                        "pool_kernel_size":[3,4,5,6],
+                        "pool_kernel_size":[3,4,5],
                         "pool_stride":[1,2,3,4],
                         "hidden_neurons":[5,10,25,50,100,200,300],
                         "mini_batch_size":[300,200,100,50,25,10,5],
@@ -283,7 +283,7 @@ testingModels["MLP"].append(MLP_model_results(
     gamma_momentum=0.05,
     dropout=0.01,
     training_methods=[]
-)
+    )
 )
 
 testingModels["MLP"].append(MLP_model_results(
@@ -368,7 +368,7 @@ testingModels["CNN"].append(CNN_model_results(
 )
 
 # End Tweaking Parameters
-
+counter = 1
 for iterMLPTestingModel in testingModels["MLP"]:
     if not isinstance(iterMLPTestingModel,MLP_model_results):
         continue
@@ -454,11 +454,13 @@ for iterMLPTestingModel in testingModels["MLP"]:
     # To turn on/off CUDA if I don't want to use it.
     CUDA_enabled = True
     if (device.type == 'cuda' and CUDA_enabled):
-        print("...Modeling MLP using GPU...")
+        if val_print_explicit > 0:
+            print("...Modeling MLP using GPU...")
         MLP_model = MLP_model.to(device=device) # sending to whaever device (for GPU acceleration)
         # CNN_model = CNN_model.to(device=device)
     else:
-        print("...Modeling MLP using CPU...")
+        if val_print_explicit > 0:
+            print("...Modeling MLP using CPU...")
 
 
 
@@ -490,6 +492,8 @@ for iterMLPTestingModel in testingModels["MLP"]:
         l_func = nn.NLLLoss()
 
     ### Train your networks
+    print(f"Sampling MLP model: {counter}")
+    counter += 1
     if val_print_explicit > 0:
         print("............Training MLP................")
     is_MLP = True
@@ -537,13 +541,12 @@ with open(mlptestingResultsFileName,"w",newline="") as file:
     writer.writerow(["epochs","number_of_layers","number_of_hidden_neurons","mini_batch_size",
             "activationFunction","loss_Function","grad_method","alpha_learning_rate","gamma_momentum",
             "dropout","training_time","accuracy"])
-    if val_print_explicit > 0:
-        for iterMLPresult in testingResults["MLP"]:
+    for iterMLPresult in testingResults["MLP"]:
+        if val_print_explicit > 0:
             print(iterMLPresult)
+        writer.writerow(iterMLPresult.to_csv())
 
-            writer.writerow(iterMLPresult.to_csv())
-
-
+counter = 1
 for iterCNNTestingModel in testingModels["CNN"]:
     if not isinstance(iterCNNTestingModel,CNN_model_results):
         continue
@@ -631,7 +634,8 @@ for iterCNNTestingModel in testingModels["CNN"]:
                     l_func
     )
     while(CNN_model.fail):
-        print("Failed to create model, trying again")
+        if val_print_explicit > 0:
+            print("Failed to create model, trying again")
         random_parameters = sample_random_parameters(test_parameters_cnn)
         iterCNNTestingModel.conv_kernel_size = conv_kernel_size = random_parameters['conv_kernel_size']
         iterCNNTestingModel.conv_stride = conv_stride = random_parameters['conv_stride']
@@ -668,11 +672,13 @@ for iterCNNTestingModel in testingModels["CNN"]:
     # To turn on/off CUDA if I don't want to use it.
     CUDA_enabled = True
     if (device.type == 'cuda' and CUDA_enabled):
-        print("...Modeling CNN using GPU...")
+        if val_print_explicit > 0:
+            print("...Modeling CNN using GPU...")
         CNN_model = CNN_model.to(device=device) # sending to whaever device (for GPU acceleration)
         # CNN_model = CNN_model.to(device=device)
     else:
-        print("...Modeling CNN using CPU...")
+        if val_print_explicit > 0:
+            print("...Modeling CNN using CPU...")
     
     ### Choose a gradient method
     # model hyperparameters and gradient methods
@@ -705,6 +711,8 @@ for iterCNNTestingModel in testingModels["CNN"]:
     if val_print_explicit > 0:
         print("............Training CNN................")
     is_MLP = False
+    print(f"Sampling CNN model: {counter}")
+    counter += 1
     start_time = time()
     train_loss=train_ANN_model(num_epochs,
                                train_dataloader,
@@ -766,10 +774,10 @@ with open(cnntestingResultsFileName,"w",newline="") as file:
                      "training_time",
                      "accuracy"]
                      )
-    if val_print_explicit > 0:
-        for iterCNNresult in testingResults["CNN"]:
+    for iterCNNresult in testingResults["CNN"]:
+        if val_print_explicit > 0:
             print(iterCNNresult)
 
-            writer.writerow(iterCNNresult.to_csv())
+    writer.writerow(iterCNNresult.to_csv())
 
 exit()
