@@ -86,43 +86,43 @@ class CNN(nn.Module):
         self.loss_Function = loss_Function
         self.conv_pool_layers = conv_pool_layers
         self.W_conv = int(((28 - conv_kernel_size + (2 * (conv_padding))) / conv_stride) + 1)
-        print(f"W_conv: {self.W_conv}")
+        # print(f"W_conv: {self.W_conv}")
         self.W_pool = int(((self.W_conv - pool_kernel_size) / pooling_stride) + 1)
-        print(f"W_pool: {self.W_pool}")
+        # print(f"W_pool: {self.W_pool}")
         if self.W_pool <= 1 or self.W_conv <= 1:
             print("Error: Initial convolutional and pooling layers are too deep for the image size. Exiting...")
             self.fail = True
-            return
-        self.conv = nn.ModuleList([nn.Conv2d(1, conv_channels, kernel_size=conv_kernel_size, stride=conv_stride, padding=conv_padding)]) # K=D=10, output_size W=(28-5)/1+1=24 (24x24), (default Stride=1)
-        self.pool = nn.ModuleList([nn.MaxPool2d(pool_kernel_size, pooling_stride)]) # W = (24-4)/4+1=6 (6x6), S=4 (pool dimension) since no overlapping regions
-        self.dropout_conv = nn.ModuleList([nn.Dropout2d(dropout_pr)]) # to avoid overfitting by dropping some nodes
-        for i in range(conv_pool_layers - 1):
-            W_conv_temp = int(((self.W_pool - conv_kernel_size + (2 * (conv_padding))) / conv_stride) + 1)
-            W_pool_temp = int(((W_conv_temp - pool_kernel_size) / pooling_stride) + 1)
-            if W_pool_temp <= conv_kernel_size or W_conv_temp <= pool_kernel_size:
-                print(f"Warning: Convolutional and pooling layers are too deep for the image size. Capping at layer {i+1}.")
-                self.conv_pool_layers = i+1
-                break
-            self.W_conv = W_conv_temp
-            self.W_pool = W_pool_temp
-            print(f"W_conv: {self.W_conv}")
-            print(f"W_pool: {self.W_pool}")
-            self.conv.append(nn.Conv2d(conv_channels, conv_channels, kernel_size=conv_kernel_size, stride=conv_stride, padding=conv_padding))
-            self.pool.append(nn.MaxPool2d(pool_kernel_size, pooling_stride))
-            self.dropout_conv.append(nn.Dropout2d(dropout_pr))
-        #+ You can add more convolutional and pooling layers
-        # Fully connected layer after convolutional and pooling layers
-        self.num_flatten_nodes = conv_channels*(self.W_pool*self.W_pool) # Flatten nodes from 10 channels and 6*6 pool_size = 10*6*6=360
-        self.fc = nn.ModuleList([nn.Linear(self.num_flatten_nodes, num_hidden)])
-        self.dropout_fc = nn.ModuleList([nn.Dropout2d(dropout_pr)])
-        for _ in range(fc_layers - 1):
-            self.fc.append(nn.Linear(num_hidden, num_hidden))
-            self.dropout_fc.append(nn.Dropout(dropout_pr))
-        #+ You can add more hidden layers here if necessary
+        else:
+            self.conv = nn.ModuleList([nn.Conv2d(1, conv_channels, kernel_size=conv_kernel_size, stride=conv_stride, padding=conv_padding)]) # K=D=10, output_size W=(28-5)/1+1=24 (24x24), (default Stride=1)
+            self.pool = nn.ModuleList([nn.MaxPool2d(pool_kernel_size, pooling_stride)]) # W = (24-4)/4+1=6 (6x6), S=4 (pool dimension) since no overlapping regions
+            self.dropout_conv = nn.ModuleList([nn.Dropout2d(dropout_pr)]) # to avoid overfitting by dropping some nodes
+            for i in range(conv_pool_layers - 1):
+                W_conv_temp = int(((self.W_pool - conv_kernel_size + (2 * (conv_padding))) / conv_stride) + 1)
+                W_pool_temp = int(((W_conv_temp - pool_kernel_size) / pooling_stride) + 1)
+                if W_pool_temp <= conv_kernel_size or W_conv_temp <= pool_kernel_size:
+                    print(f"Warning: Convolutional and pooling layers are too deep for the image size. Capping at layer {i+1}.")
+                    self.conv_pool_layers = i+1
+                    break
+                self.W_conv = W_conv_temp
+                self.W_pool = W_pool_temp
+                print(f"W_conv: {self.W_conv}")
+                print(f"W_pool: {self.W_pool}")
+                self.conv.append(nn.Conv2d(conv_channels, conv_channels, kernel_size=conv_kernel_size, stride=conv_stride, padding=conv_padding))
+                self.pool.append(nn.MaxPool2d(pool_kernel_size, pooling_stride))
+                self.dropout_conv.append(nn.Dropout2d(dropout_pr))
+            #+ You can add more convolutional and pooling layers
+            # Fully connected layer after convolutional and pooling layers
+            self.num_flatten_nodes = conv_channels*(self.W_pool*self.W_pool) # Flatten nodes from 10 channels and 6*6 pool_size = 10*6*6=360
+            self.fc = nn.ModuleList([nn.Linear(self.num_flatten_nodes, num_hidden)])
+            self.dropout_fc = nn.ModuleList([nn.Dropout2d(dropout_pr)])
+            for _ in range(fc_layers - 1):
+                self.fc.append(nn.Linear(num_hidden, num_hidden))
+                self.dropout_fc.append(nn.Dropout(dropout_pr))
+            #+ You can add more hidden layers here if necessary
 
 
 
-        self.out = nn.Linear(num_hidden, num_classes) # the output nodes are 10 classes (10 digits)
+            self.out = nn.Linear(num_hidden, num_classes) # the output nodes are 10 classes (10 digits)
         
     def forward(self, x):
         for conv, pool, dropout in zip(self.conv, self.pool, self.dropout_conv):
