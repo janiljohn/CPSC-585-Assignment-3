@@ -367,184 +367,184 @@ testingModels["CNN"].append(CNN_model_results(
     )
 )
 
-# End Tweaking Parameters
-# counter = 1
-# for iterMLPTestingModel in testingModels["MLP"]:
-#     if not isinstance(iterMLPTestingModel,MLP_model_results):
-#         continue
+#End Tweaking Parameters
+counter = 1
+for iterMLPTestingModel in testingModels["MLP"]:
+    if not isinstance(iterMLPTestingModel,MLP_model_results):
+        continue
 
 
-#     transforms_result = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,),(0.5,)),])
-#     # PyTorch tensors are like NumPy arrays that can run on GPU
-#     # e.g., x = torch.randn(64,100).type(dtype) # need to cast tensor to a CUDA datatype (dtype)
+    transforms_result = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,),(0.5,)),])
+    # PyTorch tensors are like NumPy arrays that can run on GPU
+    # e.g., x = torch.randn(64,100).type(dtype) # need to cast tensor to a CUDA datatype (dtype)
 
-#     from torch.autograd import Variable
-#     x = Variable
+    from torch.autograd import Variable
+    x = Variable
 
-#     ### Download and load the dataset from the torch vision library to the directory specified by root=''
-#     # MNIST is a collection of 7000 handwritten digits (in images) split into 60000 training images and 1000 for testing 
-#     # PyTorch library provides a clean data set. The following command will download training data in directory './data'
-#     train_dataset=datasets.MNIST(root='./data', train=True, transform=transforms_result, download=True)
-#     test_dataset=datasets.MNIST(root='./data', train=False, transform=transforms_result, download=False)
-#     if val_print_explicit > 0:
-#         print("> Shape of training data:", train_dataset.data.shape)
-#         print("> Shape of testing data:", test_dataset.data.shape)
-#         print("> Classes:", train_dataset.classes)
+    ### Download and load the dataset from the torch vision library to the directory specified by root=''
+    # MNIST is a collection of 7000 handwritten digits (in images) split into 60000 training images and 1000 for testing 
+    # PyTorch library provides a clean data set. The following command will download training data in directory './data'
+    train_dataset=datasets.MNIST(root='./data', train=True, transform=transforms_result, download=True)
+    test_dataset=datasets.MNIST(root='./data', train=False, transform=transforms_result, download=False)
+    if val_print_explicit > 0:
+        print("> Shape of training data:", train_dataset.data.shape)
+        print("> Shape of testing data:", test_dataset.data.shape)
+        print("> Classes:", train_dataset.classes)
 
-#     # You can use random_split function to splite a dataset
-#     #from torch.utils.data.dataset import random_split
-#     #train_data, val_data, test_data = random_split(train_dataset, [60,20,20])
+    # You can use random_split function to splite a dataset
+    #from torch.utils.data.dataset import random_split
+    #train_data, val_data, test_data = random_split(train_dataset, [60,20,20])
 
-#     ### DataLoader will shuffle the training dataset and load the training and test dataset
+    ### DataLoader will shuffle the training dataset and load the training and test dataset
 
-#     mini_batch_size = iterMLPTestingModel.mini_batch_size #+ You can change this mini_batch_size
+    mini_batch_size = iterMLPTestingModel.mini_batch_size #+ You can change this mini_batch_size
 
-#     # If mini_batch_size==100, # of training batches=6000/100=600 batches, each batch contains 100 samples (images, labels)
-#     # DataLoader will load the data set, shuffle it, and partition it into a set of samples specified by mini_batch_size.
-#     train_dataloader=DataLoader(dataset=train_dataset, batch_size=mini_batch_size, shuffle=True)
-#     test_dataloader=DataLoader(dataset=test_dataset, batch_size=mini_batch_size, shuffle=True)
-#     num_train_batches = len(train_dataloader)
-#     num_test_batches = len(test_dataloader)
-#     if val_print_explicit > 0:
-#         print("> Mini batch size: ", mini_batch_size)
-#         print("> Number of batches loaded for training: ", num_train_batches)
-#         print("> Number of batches loaded for testing: ", num_test_batches)
+    # If mini_batch_size==100, # of training batches=6000/100=600 batches, each batch contains 100 samples (images, labels)
+    # DataLoader will load the data set, shuffle it, and partition it into a set of samples specified by mini_batch_size.
+    train_dataloader=DataLoader(dataset=train_dataset, batch_size=mini_batch_size, shuffle=True)
+    test_dataloader=DataLoader(dataset=test_dataset, batch_size=mini_batch_size, shuffle=True)
+    num_train_batches = len(train_dataloader)
+    num_test_batches = len(test_dataloader)
+    if val_print_explicit > 0:
+        print("> Mini batch size: ", mini_batch_size)
+        print("> Number of batches loaded for training: ", num_train_batches)
+        print("> Number of batches loaded for testing: ", num_test_batches)
 
-#     ### Let's display some images from the first batch to see what actual digit images look like
-#     iterable_batches = iter(train_dataloader) # making a dataset iterable
-#     images, labels = next(iterable_batches) # If you can call next() again, you get the next batch until no more batch left
-#     show_digit_image = False
-#     if show_digit_image:
-#         show_some_digit_images(images)
+    ### Let's display some images from the first batch to see what actual digit images look like
+    iterable_batches = iter(train_dataloader) # making a dataset iterable
+    images, labels = next(iterable_batches) # If you can call next() again, you get the next batch until no more batch left
+    show_digit_image = False
+    if show_digit_image:
+        show_some_digit_images(images)
 
-#     ### Create an object for the ANN model defined in the MLP class
-#     # Architectural parameters: You can change these parameters except for num_input and num_classes
-#     num_input = 28*28   # 28X28=784 pixels of image
-#     num_classes = 10    # output layer
-#     #There are 10 digits that we are trying to classify
+    ### Create an object for the ANN model defined in the MLP class
+    # Architectural parameters: You can change these parameters except for num_input and num_classes
+    num_input = 28*28   # 28X28=784 pixels of image
+    num_classes = 10    # output layer
+    #There are 10 digits that we are trying to classify
 
-#     num_hidden = iterMLPTestingModel.number_of_hidden_neurons
-#     # num_hidden = 10     # number of neurons at the first hidden layer
-#     # Randomly selected neurons by dropout_pr probability will be dropped (zeroed out) for regularization.
+    num_hidden = iterMLPTestingModel.number_of_hidden_neurons
+    # num_hidden = 10     # number of neurons at the first hidden layer
+    # Randomly selected neurons by dropout_pr probability will be dropped (zeroed out) for regularization.
 
-#     dropout_pr = iterMLPTestingModel.dropout
-#     # dropout_pr = 0.05
+    dropout_pr = iterMLPTestingModel.dropout
+    # dropout_pr = 0.05
 
-#     layers = iterMLPTestingModel.number_of_layers
+    layers = iterMLPTestingModel.number_of_layers
 
-#     activ_func = _ACTIVATION_FUNCTIONS[iterMLPTestingModel.activationFunction]
-#     l_func = iterMLPTestingModel.loss_Function
+    activ_func = _ACTIVATION_FUNCTIONS[iterMLPTestingModel.activationFunction]
+    l_func = iterMLPTestingModel.loss_Function
 
-#     # MLP model
-#     MLP_model=MLP(num_input, layers, num_hidden, num_classes, dropout_pr, activ_func, l_func)
-#     # Some model properties: 
-#     # .state_dic(): a dictionary of trainable parameters with their current valeus
-#     # .parameter(): a list of all trainable parameters in the model
-#     # .train() or .eval(): setting training, testing mode
-#     if val_print_explicit > 0:
-#         print("> MLP model parameters")
-#         print(MLP_model.parameters)
-#         # state_dict() maps each layer to its parameter tensor.
-#         print ("> MLP model's state dictionary")
-#         for param_tensor in MLP_model.state_dict():
-#             print(param_tensor, MLP_model.state_dict()[param_tensor].size())
+    # MLP model
+    MLP_model=MLP(num_input, layers, num_hidden, num_classes, dropout_pr, activ_func, l_func)
+    # Some model properties: 
+    # .state_dic(): a dictionary of trainable parameters with their current valeus
+    # .parameter(): a list of all trainable parameters in the model
+    # .train() or .eval(): setting training, testing mode
+    if val_print_explicit > 0:
+        print("> MLP model parameters")
+        print(MLP_model.parameters)
+        # state_dict() maps each layer to its parameter tensor.
+        print ("> MLP model's state dictionary")
+        for param_tensor in MLP_model.state_dict():
+            print(param_tensor, MLP_model.state_dict()[param_tensor].size())
 
-#     #exit()
+    #exit()
 
-#     # To turn on/off CUDA if I don't want to use it.
-#     CUDA_enabled = True
-#     if (device.type == 'cuda' and CUDA_enabled):
-#         if val_print_explicit > 0:
-#             print("...Modeling MLP using GPU...")
-#         MLP_model = MLP_model.to(device=device) # sending to whaever device (for GPU acceleration)
-#         # CNN_model = CNN_model.to(device=device)
-#     else:
-#         if val_print_explicit > 0:
-#             print("...Modeling MLP using CPU...")
+    # To turn on/off CUDA if I don't want to use it.
+    CUDA_enabled = True
+    if (device.type == 'cuda' and CUDA_enabled):
+        if val_print_explicit > 0:
+            print("...Modeling MLP using GPU...")
+        MLP_model = MLP_model.to(device=device) # sending to whaever device (for GPU acceleration)
+        # CNN_model = CNN_model.to(device=device)
+    else:
+        if val_print_explicit > 0:
+            print("...Modeling MLP using CPU...")
 
 
 
-#     ### Choose a gradient method
-#     # model hyperparameters and gradient methods
-#     # optim.SGD performs gradient descent and update the weigths through backpropagation.
-#     num_epochs = iterMLPTestingModel.epochs
-#     alpha = iterMLPTestingModel.alpha_learning_rate       # learning rate
-#     gamma = iterMLPTestingModel.gamma_momentum        # momentum
-#     rho = iterMLPTestingModel.rho
-#     # Stochastic Gradient Descent (SGD) is used in this program.
-#     #+ You can choose other gradient methods (Adagrad, adadelta, Adam, etc.) and parameters
-#     if iterMLPTestingModel.grad_method == "SGD":
-#         MLP_optimizer = optim.SGD(MLP_model.parameters(), lr=alpha, momentum=gamma)
-#     elif iterMLPTestingModel.grad_method == "Adadelta":
-#         MLP_optimizer = optim.Adadelta(MLP_model.parameters(), lr=alpha, rho=rho)
-#     elif iterMLPTestingModel.grad_method == "Adagrad":
-#         MLP_optimizer = optim.Adagrad(MLP_model.parameters(), lr=alpha)
-#     if val_print_explicit > 0:
-#         print("> MLP optimizer's state dictionary")
-#         for var_name in MLP_optimizer.state_dict():
-#             print(var_name, MLP_optimizer.state_dict()[var_name])
+    ### Choose a gradient method
+    # model hyperparameters and gradient methods
+    # optim.SGD performs gradient descent and update the weigths through backpropagation.
+    num_epochs = iterMLPTestingModel.epochs
+    alpha = iterMLPTestingModel.alpha_learning_rate       # learning rate
+    gamma = iterMLPTestingModel.gamma_momentum        # momentum
+    rho = iterMLPTestingModel.rho
+    # Stochastic Gradient Descent (SGD) is used in this program.
+    #+ You can choose other gradient methods (Adagrad, adadelta, Adam, etc.) and parameters
+    if iterMLPTestingModel.grad_method == "SGD":
+        MLP_optimizer = optim.SGD(MLP_model.parameters(), lr=alpha, momentum=gamma)
+    elif iterMLPTestingModel.grad_method == "Adadelta":
+        MLP_optimizer = optim.Adadelta(MLP_model.parameters(), lr=alpha, rho=rho)
+    elif iterMLPTestingModel.grad_method == "Adagrad":
+        MLP_optimizer = optim.Adagrad(MLP_model.parameters(), lr=alpha)
+    if val_print_explicit > 0:
+        print("> MLP optimizer's state dictionary")
+        for var_name in MLP_optimizer.state_dict():
+            print(var_name, MLP_optimizer.state_dict()[var_name])
 
-#     ### Define a loss function: You can choose other loss functions
+    ### Define a loss function: You can choose other loss functions
 
-#     if l_func == "crossEntropy":
-#         l_func = nn.CrossEntropyLoss()
-#     elif l_func == "NLLLoss":
-#         l_func = nn.NLLLoss()
+    if l_func == "crossEntropy":
+        l_func = nn.CrossEntropyLoss()
+    elif l_func == "NLLLoss":
+        l_func = nn.NLLLoss()
 
-#     ### Train your networks
-#     print(f"Sampling MLP model: {counter}")
-#     counter += 1
-#     if val_print_explicit > 0:
-#         print("............Training MLP................")
-#     is_MLP = True
+    ### Train your networks
+    print(f"Sampling MLP model: {counter}")
+    counter += 1
+    if val_print_explicit > 0:
+        print("............Training MLP................")
+    is_MLP = True
     
-#     start_time = time()
-#     train_loss=train_ANN_model(num_epochs,
-#                                train_dataloader,
-#                                device,
-#                                CUDA_enabled,
-#                                is_MLP,
-#                                MLP_model,
-#                                l_func,
-#                                MLP_optimizer,
-#                                mini_batch_size,
-#                                num_train_batches,
-#                                val_print_explicit
-#     )
-#     training_time = time() - start_time
-#     if val_print_explicit > 0:
-#         print("............Testing MLP model................")
+    start_time = time()
+    train_loss=train_ANN_model(num_epochs,
+                               train_dataloader,
+                               device,
+                               CUDA_enabled,
+                               is_MLP,
+                               MLP_model,
+                               l_func,
+                               MLP_optimizer,
+                               mini_batch_size,
+                               num_train_batches,
+                               val_print_explicit
+    )
+    training_time = time() - start_time
+    if val_print_explicit > 0:
+        print("............Testing MLP model................")
 
-#         print("> Input digits:")
-#         print(labels)
-#     predicted_digits, accuracy=test_ANN_model(device,
-#                                               CUDA_enabled, 
-#                                               is_MLP, 
-#                                               MLP_model, 
-#                                               test_dataloader,
-#                                               mini_batch_size,
-#                                               num_test_batches,
-#                                               val_print_explicit
-#     )
-#     if val_print_explicit > 0:
-#         print("> Predicted digits by MLP model")
-#         print(predicted_digits)
-#     iterMLPTestingModel.updateResults(training_time=training_time,accuracy=accuracy)
-#     testingResults["MLP"].append(iterMLPTestingModel)
+        print("> Input digits:")
+        print(labels)
+    predicted_digits, accuracy=test_ANN_model(device,
+                                              CUDA_enabled, 
+                                              is_MLP, 
+                                              MLP_model, 
+                                              test_dataloader,
+                                              mini_batch_size,
+                                              num_test_batches,
+                                              val_print_explicit
+    )
+    if val_print_explicit > 0:
+        print("> Predicted digits by MLP model")
+        print(predicted_digits)
+    iterMLPTestingModel.updateResults(training_time=training_time,accuracy=accuracy)
+    testingResults["MLP"].append(iterMLPTestingModel)
 
-# if val_print_explicit > 0:
-#     print("All MLP tests completed:")
+if val_print_explicit > 0:
+    print("All MLP tests completed:")
 
-# # with open(testingResultsFileName,"w",newline="") as file:
-# with open(mlptestingResultsFileName,"w",newline="") as file:
-#     writer = csv.writer(file)
-#     writer.writerow(["epochs","number_of_layers","number_of_hidden_neurons","mini_batch_size",
-#             "activationFunction","loss_Function","grad_method","alpha_learning_rate","gamma_momentum",
-#             "dropout","training_time","accuracy"])
-#     for iterMLPresult in testingResults["MLP"]:
-#         if val_print_explicit > 0:
-#             print(iterMLPresult)
-#         writer.writerow(iterMLPresult.to_csv())
+# with open(testingResultsFileName,"w",newline="") as file:
+with open(mlptestingResultsFileName,"w",newline="") as file:
+    writer = csv.writer(file)
+    writer.writerow(["epochs","number_of_layers","number_of_hidden_neurons","mini_batch_size",
+            "activationFunction","loss_Function","grad_method","alpha_learning_rate","gamma_momentum",
+            "dropout","training_time","accuracy"])
+    for iterMLPresult in testingResults["MLP"]:
+        if val_print_explicit > 0:
+            print(iterMLPresult)
+        writer.writerow(iterMLPresult.to_csv())
 
 counter = 1
 for iterCNNTestingModel in testingModels["CNN"]:
