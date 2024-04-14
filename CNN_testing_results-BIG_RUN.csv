@@ -1,0 +1,2 @@
+epochs,conv_pool_layers,fc_layers,conv_kernel_size,conv_stride,conv_padding,pool_kernel_size,pool_stride,hidden_neurons,mini_batch_size,activationFunction,loss_Function,grad_method,alpha_learning_rate,gamma_momentum,rho,dropout,training_time,accuracy
+7,1,15,5,2,2,5,2,25,200,relu,crossEntropy,SGD,0.25,0.1,0.1,0.1,85.26720905303955,0.15

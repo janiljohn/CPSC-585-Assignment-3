@@ -1,0 +1,2 @@
+epochs,number_of_layers,number_of_hidden_neurons,mini_batch_size,activationFunction,loss_Function,grad_method,alpha_learning_rate,gamma_momentum,dropout,training_time,accuracy
+1,50,25,5,sigmoid,NLLLoss,SGD,0.01,0.01,0.001,220.00080752372742,0.0
