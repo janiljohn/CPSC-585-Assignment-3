@@ -76,7 +76,7 @@ test_dataset = TreeDataset(test, transform=preprocess)
 train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=4, shuffle=False)
 
-epochs = 150
+epochs = 500
 
 print("Training...")
 for epoch in range(epochs):
