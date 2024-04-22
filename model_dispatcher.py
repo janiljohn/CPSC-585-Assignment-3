@@ -3,6 +3,7 @@ import csv
 import argparse
 from model_tools import *
 
+# Get all arguements
 parser = argparse.ArgumentParser("digit analyser")
 parser.add_argument("print_explicit", help="If 2, will do all print statements. If 1, prints excluding batches. If 0, no prints.", choices=["0","1","2"])
 parser.add_argument("sampleQuantity", help="The number of random samples to generate from the parameter possibilities", type=int)
@@ -132,16 +133,8 @@ Accuracy: {self.accuracy}'''
             self.accuracy
          ]
 
-########################### Checking GPU and setup #########################
-### CUDA is a parallel computing platform and toolkit developed by NVIDIA. 
-# CUDA enables parallelize the computing intensive operations using GPUs.
-# In order to use CUDA, your computer needs to have a CUDA supported GPU and install the CUDA Toolkit
-# Steps to verify and setup Pytorch and CUDA Toolkit to utilize your GPU in your machine:
-# (1) Check if your computer has a compatible GPU at https://developer.nvidia.com/cuda-gpus
-# (2) If you have a GPU, continue to the next step, else you can only use CPU and ignore the rest steps.
-# (3) Downloaded the compatible Pytorch version and CUDA version, refer to https://pytorch.org/get-started/locally/
-# Note: If Pytorch and CUDA versions are not compatible, Pytorch will not be able to recognize your GPU
-# (4) The following codes will verify if Pytorch is able to recognize the CUDA Toolkit:
+# Check for Cuda and report to user
+
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 if (torch.cuda.is_available()):
     print("The CUDA version is", torch.version.cuda)
@@ -213,8 +206,6 @@ test_parameters_cnn = {
 mlptestingResultsFileName = f"MLP_testing_results-{testingResultsFileDistiction}.csv"
 cnntestingResultsFileName = f"CNN_testing_results-{testingResultsFileDistiction}.csv"
 
-# sampleQuantity = 1
-
 import random
 
 # Function to sample random parameters
@@ -266,9 +257,6 @@ for _ in range(sampleQuantity):
         dropout=random_parameters['dropout'],
         training_methods=[]
     ))
-# Sample a set of random parameters
-if val_print_explicit > 0:
-    print(testingModels)
 
 # Pretty good results for these
 testingModels["MLP"].append(MLP_model_results(
@@ -345,29 +333,7 @@ testingModels["CNN"].append(CNN_model_results(
     )
 )
 
-testingModels["CNN"].append(CNN_model_results(
-    epochs=5,
-    conv_pool_layers=999,
-    fc_layers=3,
-    conv_kernel_size=3,
-    conv_stride=1,
-    conv_padding=1,
-    pool_kernel_size=4,
-    pool_stride=3,
-    hidden_neurons=25,
-    mini_batch_size=50,
-    activationFunction="silu",
-    loss_Function="crossEntropy",
-    grad_method="SGD",
-    alpha_learning_rate=0.25,
-    gamma_momentum=0.05,
-    rho=0.75,
-    dropout=0.005,
-    training_methods=[]
-    )
-)
-
-#End Tweaking Parameters
+# End Tweaking Parameters
 counter = 1
 for iterMLPTestingModel in testingModels["MLP"]:
     if not isinstance(iterMLPTestingModel,MLP_model_results):
@@ -396,6 +362,10 @@ for iterMLPTestingModel in testingModels["MLP"]:
     #train_data, val_data, test_data = random_split(train_dataset, [60,20,20])
 
     ### DataLoader will shuffle the training dataset and load the training and test dataset
+
+    # As per discussion with professor, shuffling is especially not helpful in tasks requiring RECREATING models that have been made in the past
+
+
 
     mini_batch_size = iterMLPTestingModel.mini_batch_size #+ You can change this mini_batch_size
 
@@ -568,9 +538,6 @@ for iterCNNTestingModel in testingModels["CNN"]:
         print("> Shape of testing data:", test_dataset.data.shape)
         print("> Classes:", train_dataset.classes)
 
-    # You can use random_split function to splite a dataset
-    #from torch.utils.data.dataset import random_split
-    #train_data, val_data, test_data = random_split(train_dataset, [60,20,20])
 
     ### DataLoader will shuffle the training dataset and load the training and test dataset
 
