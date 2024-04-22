@@ -269,6 +269,7 @@ testingModels["MLP"].append(MLP_model_results(
     gradient_method="Adadelta",
     alpha_learning_rate=0.5 ,
     gamma_momentum=0.05,
+    rho=0.9,
     dropout=0.01,
     training_methods=[]
     )
@@ -284,6 +285,7 @@ testingModels["MLP"].append(MLP_model_results(
     gradient_method="Adadelta",
     alpha_learning_rate=0.25 ,
     gamma_momentum=0.05,
+    rho=0.9,
     dropout=0.01,
     training_methods=[]
 )
